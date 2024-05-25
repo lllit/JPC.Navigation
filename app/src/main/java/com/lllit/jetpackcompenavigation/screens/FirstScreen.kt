@@ -3,20 +3,29 @@
 package com.lllit.jetpackcompenavigation.screens
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyItemScope
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.BottomAppBar
@@ -24,6 +33,7 @@ import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -33,11 +43,23 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.*
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.DarkGray
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -55,84 +77,89 @@ import java.nio.file.FileVisitResult
 @Composable
 fun FirstScreen(navController: NavController) {
     Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Gray,
-                    //titleContentColor = MaterialTheme.colorScheme.primary,
-                ),
-                title = {
-                    Text(
-                        "FirstScreen",
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        color = Color.White
-                    )
-                },
-                actions = {
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Menu,
-                            contentDescription = "Icon Menu",
-                        )
-                    }
-                }
-            )
-        },
+        content = { BodyContent(navController) },
+        topBar = { ToolBar() },
         bottomBar = {
-            BottomAppBar(
-                actions = {
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Check,
-                            contentDescription = "Bottom Check"
-                        )
+            MaterialTheme(
+                colorScheme = darkColorScheme()
+            ) {
+                BottomAppBar(
+                    actions = {
+                        IconButton(onClick = { /*TODO*/ }) {
+                            Icon(
+                                imageVector = Icons.Filled.Check,
+                                contentDescription = "Bottom Check"
+                            )
+                        }
+                        IconButton(onClick = { /*TODO*/ }) {
+                            Icon(
+                                imageVector = Icons.Filled.Edit,
+                                contentDescription = "Bottom Edit"
+                            )
+                        }
+                        IconButton(onClick = { /*TODO*/ }) {
+                            Icon(
+                                imageVector = Icons.Filled.Person,
+                                contentDescription = "Bottom Person"
+                            )
+                        }
+                    },
+                    floatingActionButton = {
+                        FloatingActionButton(
+                            onClick = { /*TODO*/ },
+                            containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+                            elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
+                        ) {
+                            Icon(imageVector = Icons.Filled.Add, contentDescription = "Icon ADD")
+                        }
                     }
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Edit,
-                            contentDescription = "Bottom Edit"
-                        )
-                    }
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Person,
-                            contentDescription = "Bottom Person"
-                        )
-                    }
-                },
-                floatingActionButton = {
-                    FloatingActionButton(
-                        onClick = { /*TODO*/ },
-                        containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
-                        elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
-                    ) {
-                        Icon(imageVector = Icons.Filled.Add, contentDescription = "Icon ADD")
-                    }
-                }
-            )
+                )
+            }
         },
+        floatingActionButton = { FAB() },
+        floatingActionButtonPosition = FabPosition.End
+    )
+}
 
-        ) {
-        BodyContent(navController)
+@Composable
+fun ToolBar() {
+    MaterialTheme(
+        colorScheme = darkColorScheme()
+    ) {
+        CenterAlignedTopAppBar(
+            colors = TopAppBarDefaults.topAppBarColors(
+                //containerColor = Color.Green,
+                //titleContentColor = MaterialTheme.colorScheme.primary,
+            ),
+            title = {
+                Text(
+                    "FirstScreen",
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = Color.White
+                )
+            },
+            actions = {
+                IconButton(onClick = { /*TODO*/ }) {
+                    Icon(
+                        imageVector = Icons.Filled.Menu,
+                        contentDescription = "Icon Menu",
+                    )
+                }
+            },
+        )
     }
 }
 
 @Composable
 fun BodyContent(navController: NavController) {
+    //ImaGEN
     LazyColumn(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxWidth()
+            .fillMaxHeight(),
     ) {
         item {
-            Image(
-                modifier = Modifier
-                    .fillMaxSize(),
-                    //.height(100.dp),
-                    //.width(300.dp),
-                painter = painterResource(id = R.drawable.image),
-                contentDescription = "Imagen Abstracta"
-            )
             Image(
                 modifier = Modifier
                     .fillMaxSize(),
@@ -141,26 +168,125 @@ fun BodyContent(navController: NavController) {
                 painter = painterResource(id = R.drawable.image),
                 contentDescription = "Imagen Abstracta"
             )
+            Image(
+                modifier = Modifier
+                    .fillMaxSize(),
+                //.height(3000.dp),
+                //.width(3000.dp),
+                painter = painterResource(id = R.drawable.image),
+                contentDescription = "Imagen Abstracta"
+            )
+            Image(
+                modifier = Modifier
+                    .fillMaxSize(),
+                //.height(3000.dp),
+                //.width(3000.dp),
+                painter = painterResource(id = R.drawable.image),
+                contentDescription = "Imagen Abstracta"
+            )
         }
     }
 
+    //Contenido
 
-    Column(
+    var counter by rememberSaveable { mutableIntStateOf(0) }
+
+    LazyColumn(
         modifier = Modifier
-            .fillMaxSize(),
-        //.background(DarkGray),
-        verticalArrangement = Arrangement.Center,
+            .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Hola vegan@", color = Color.White)
+        item {
+            Text(
+                text = "Abstracción Visual",
+                fontSize = 33.sp,
+                color = Color.White,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 76.dp),
+                textAlign = TextAlign.Center
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp, 3.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row {
+                    Image(
+                        painter = painterResource(id = R.drawable.compu),
+                        contentDescription = "Icono PC"
+                    )
+                }
+                Text(
+                    text = "Generative art",
+                    color = Color.White
+                )
+                Text(
+                    text = "Music",
+                    color = Color.White
+                )
+                Text(
+                    text = "Programing",
+                    color = Color.White
+                )
+                Row {
+                    Image(
+                        painter = painterResource(id = R.drawable.compu),
+                        contentDescription = "Icono PC"
+                    )
+                }
+
+            }
+            //Contador
+            Row(
+                modifier = Modifier.padding(top = 8.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.compu),
+                    contentDescription = "Icono",
+                    modifier = Modifier.clickable { counter++ }
+                )
+                Text(
+                    text = counter.toString(),
+                    color = Color.White,
+                    modifier = Modifier.padding(start = 4.dp)
+                )
+            }
+        }
+    }
+
+    //Boton
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(11.dp),
+        //.background(DarkGray),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.End
+    ) {
+        Text(text = "Siguiente", color = Color.White)
         Button(onClick = {
             navController.navigate(route = AppScreens.SecondScreen.route)
         }) {
-            Text(text = "Navega")
+            Icon(
+                imageVector = Icons.Filled.KeyboardArrowRight,
+                contentDescription = "Siguiente pagina"
+            )
         }
     }
 }
 
+@Preview
+@Composable
+fun FAB() {
+    val context = LocalContext.current
+    FloatingActionButton(onClick = {
+        Toast.makeText(context, "Toask", Toast.LENGTH_SHORT).show()
+    }) {
+        Image(painter = painterResource(id = R.drawable.ic_launcher_foreground), contentDescription = "DROID")
+    }
+}
 
 
 
